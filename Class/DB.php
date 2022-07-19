@@ -27,9 +27,9 @@ class DB
 		return $query->fetchall(PDO::FETCH_ASSOC);
 	}
 
-	public function select_table()
+	public function select_table($start, $end)
 	{
-		$query = $this->conn->prepare("SELECT tickets.*, clientes.classificacao, users.nome FROM `tickets` left join users on users.nome = tickets.agente left join clientes on clientes.nome = tickets.cliente group by id order by tickets.id asc");
+		$query = $this->conn->prepare("SELECT tickets.*, clientes.classificacao, users.nome FROM `tickets` left join users on users.nome = tickets.agente left join clientes on clientes.nome = tickets.cliente where tickets.data between $start and $end group by id order by tickets.id asc");
 		$query->execute();
 
 		return $query->fetchall(PDO::FETCH_ASSOC);
