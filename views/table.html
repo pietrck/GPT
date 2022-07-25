@@ -58,11 +58,42 @@
 										<input type="text" class="form-control float-right" id="reservation" name="date">
 									</div>
 								</div>
-								<div class="col-6">
+								<div class="col-7">
 									<button type="submit" class="btn btn-info">Filtrar</button>
+								</div>
+								<div class="col-1">
+									<button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#modal-default">Upload</button>
 								</div>
 							</div>
 						</form>
+						<div class="modal fade" id="modal-default" aria-hidden="true" style="display: none;">
+							<div class="modal-dialog">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h4 class="modal-title">Upload de nova tabela</h4>
+										<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+											<span aria-hidden="true">×</span>
+										</button>
+									</div>
+									<form method="post" enctype="multipart/form-data">
+										<div class="modal-body">
+											<div class="input-group">
+												<div class="custom-file">
+													<input type="file" class="custom-file-input" name="file" accept=".csv">
+													<label class="custom-file-label" for="exampleInputFile">Escolha o arquivo</label>
+												</div>
+											</div>
+										</div>
+										<div class="modal-footer justify-content-between">
+											<button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+											<button type="submit" class="btn btn-primary">Upload</button>
+										</div>
+									</form>
+								</div>
+							<!-- /.modal-content -->
+							</div>
+							<!-- /.modal-dialog -->
+						</div>
 					</div>
 				</section>
 				<section class="content" id="apost">
@@ -227,7 +258,10 @@
 				var element = document.getElementById(id);
 				element.style.backgroundColor = "lightgreen";
 				element.children[10].innerHTML = "Apontado";
-				element.children[11].children[1].disabled = true;
+				element.children[11].children[1].remove();
+				let btn = create_button(["btn","btn-sm","btn-warning"],"Limpar","limpar("+id+", 'apontado');");
+				element.children[11].insertBefore(btn, element.children[11].children[1]);
+				element.children[11].children[2].disabled = true;
 				if (!bol2) {
 					element.style.display = "none";
 				}
@@ -239,12 +273,44 @@
 			{
 				var element = document.getElementById(id);
 				element.style.backgroundColor = "#A865C9";
-				element.children[11].children[2].disabled = true;
+				element.children[11].children[2].remove();
+				let btn = create_button(["btn","btn-sm","btn-warning"],"Limpar","limpar("+id+");");
+				element.children[11].appendChild(btn);
+				element.children[11].children[1].disabled = true;
 				if (!bol) {
 					element.style.display = "none";
 				}
 				count_rows();
 				post('ignorar',id);
+			}
+
+			function limpar(id, type = "")
+			{
+				var element = document.getElementById(id);
+				element.style.backgroundColor = "white";
+
+				if (type == "apontado") {
+					element.children[11].children[1].remove();
+					element.children[10].innerHTML = "";
+					let btn = create_button(["btn","btn-sm","btn-success"],"Apontar","apontar("+id+");");
+					element.children[11].insertBefore(btn, element.children[11].children[1]);
+					element.children[11].children[2].disabled = false;
+					if (!bol2) {
+						element.style.display = "none";
+					}
+				}else{
+					element.children[11].children[2].remove();
+					let btn = create_button(["btn","btn-sm","btn-danger"],"Ignorar","ignorar("+id+");");
+					element.children[11].appendChild(btn);
+					element.children[11].children[1].disabled = false;
+
+					if (!bol) {
+						element.style.display = "none";
+					}
+				}
+
+				count_rows();
+				post('limpar',id);
 			}
 
 			function count_rows()
@@ -275,6 +341,19 @@
 					}
 				}
 				http.send(params);
+			}
+
+			function create_button(classList, inner, attribute)
+			{
+				let btn = document.createElement("button");
+
+				classList.forEach(function (item, index) {
+					btn.classList.add(item);
+				});
+
+				btn.innerHTML = inner;
+				btn.setAttribute("onclick",attribute);
+				return btn;
 			}
 
 			count_rows();

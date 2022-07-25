@@ -4,7 +4,7 @@ class Views
 {
 	public function render($filename)
 	{
-		$file = file_get_contents(__DIR__."/../views/".$filename.".html");
+		$file = file_get_contents(__DIR__."/../../views/".$filename.".html");
 		return $file;
 	}
 

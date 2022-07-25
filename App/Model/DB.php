@@ -52,4 +52,13 @@ class DB
 
 		return $query->fetchall(PDO::FETCH_ASSOC);
 	}
+
+	public function limpar($id)
+	{
+		$query = $this->conn->prepare("update tickets set labels = '', apontado = 0 where id = :id;");
+		$query->bindParam("id", $id);
+		$query->execute();
+
+		return $query->fetchall(PDO::FETCH_ASSOC);
+	}
 }
