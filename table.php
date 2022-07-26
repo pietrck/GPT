@@ -5,8 +5,10 @@ require_once __DIR__."/App/View/Views.php";
 $views = new Views();
 
 $db = new DB();
+$conn = $db->open();
 
-$table = "";
+$table = $options = $options_clientes = "";
+$agentes = [];
 
 if (isset($_FILES['file'])) {
 	require_once __DIR__."/App/Model/Upload.php";
@@ -20,7 +22,7 @@ if (isset($_POST['date'])) {
 	$start = $dateStart[2].$dateStart[1].$dateStart[0];
 	$dateEnd = explode("/", $daterange[1]);
 	$end = $dateEnd[2].$dateEnd[1].$dateEnd[0];
-	$result = $db->select_table(start: $start, end: $end);
+	$result = $db->select_table(start: $start, end: $end, agente: $_POST['agente'], cliente: $_POST['cliente']);
 
 	if (count($result) > 0) {
 		foreach ($result as $row) {
@@ -41,7 +43,7 @@ if (isset($_POST['date'])) {
 			$table .= "<td title='".$row['acao']."' style='max-width: 200px; overflow: hidden;'>".nl2br($row['acao'])."</td>";
 			$table .= "<td style='display: none'>".$row['categoria']."</td>";
 			$table .= "<td style='max-width:200px; overflow: hidden;'>".$row['agente']."</td>";
-			$table .= "<td style='max-width:100px; overflow: hidden;'>".$row['equipe']."</td>";
+			$table .= "<td style='display: none'>".$row['equipe']."</td>";
 			$table .= "<td style='max-width:100px; overflow: hidden;'>".$date."</td>";
 			$table .= "<td style='max-width:70px; overflow: hidden;'>".$row['horas']."</td>";
 			if ($row['labels'] == "#A865C9") {
@@ -69,11 +71,24 @@ if (isset($_POST['date'])) {
 			$table .= "<td style='display: none'>".$row['classificacao']."</td>";
 			$table .= "<td style='display: none'>".$row['nome']."</td>";
 			$table .= "</tr>";
+
+			if (!array_search($row['agente'], $agentes)) {
+				$agentes[] = $row['agente'];
+			}
 		}
 	}
 
 	$active = "document.getElementById('apontamentos').classList.add('active');document.getElementById('bpost').remove();";
 }else{
+	$result = $db->select(columns: "agente", order: " group by agente;");
+
+	if (count($result) > 0) {
+		foreach ($result as $row) {
+			$options .= '<option value="'.$row['agente'].'">'.$row['agente'].'</option>';
+		}
+	}
+
+	$options_clientes = $db->select_customer();
 	$active = "document.getElementById('apontamentos').classList.add('active');document.getElementById('apost').remove();";
 }
 
@@ -81,4 +96,8 @@ echo $views->page("table", [
 	"table" => $table,
 	"datepicker" => $views->render("datepicker"),
 	"active" => $active,
+	"options" => $options,
+	"options_clientes" => $options_clientes,
+	"startdate" => '"01/'.date("m").'/'.date("Y").'"',
+	"enddate" => '"'.date("t").'/'.date("m").'/'.date("Y").'"',
 ]);

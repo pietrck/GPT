@@ -48,7 +48,7 @@
 						<br>
 						<form method="post">
 							<div class="row">
-								<div class="col-4">
+								<div class="col-3">
 									<div class="input-group">
 										<div class="input-group-prepend">
 											<span class="input-group-text">
@@ -58,10 +58,20 @@
 										<input type="text" class="form-control float-right" id="reservation" name="date">
 									</div>
 								</div>
-								<div class="col-7">
-									<button type="submit" class="btn btn-info">Filtrar</button>
+								<div class="col-3">
+									<select class="form-control" name="agente">
+										<option value="">Todos os agentes</option>
+										{{options}}
+									</select>
 								</div>
-								<div class="col-1">
+								<div class="col-3">
+									<select class="form-control" name="cliente">
+										<option value="">Todos os clientes</option>
+										{{options_clientes}}
+									</select>
+								</div>
+								<div class="col">
+									<button type="submit" class="btn btn-info">Filtrar</button>
 									<button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#modal-default">Upload</button>
 								</div>
 							</div>
@@ -140,7 +150,6 @@
 													<th>Nº Ação</th>
 													<th>Ação</th>
 													<th>Agente</th>
-													<th>Equipe</th>
 													<th>Data</th>
 													<th>Horas</th>
 													<th>Opções</th>
@@ -183,7 +192,13 @@
 
 				for (var i = 1; i < children.length-4; i++) {
 					x += children[i].innerHTML.replace(/&nbsp;/gi," ") + "\t";
-					navigator.clipboard.writeText(x);
+					setTimeout(
+						async () => await navigator.clipboard.writeText(x).then(function () {
+							console.log("Copy to clipboard successfully.");
+						}, function () {
+							console.log("Copy to clipboard unsuccessfully.");
+						})
+					);
 				}
 			}
 
@@ -235,7 +250,7 @@
 			{
 				if (bol3) {
 					for (var i = 0; i < tbody.length; i++) {
-						if(tbody[i].children[12].innerHTML != '' && tbody[i].children[13].innerHTML != ''){
+						if(tbody[i].children[12].innerHTML == 'SCC' && tbody[i].children[13].innerHTML != ''){
 							tbody[i].style.display = "none";
 						}
 					}
@@ -337,7 +352,7 @@
 
 				http.onreadystatechange = function() {//Call a function when the state changes.
 					if(http.readyState == 4 && http.status == 200) {
-						console.log(1);
+						console.log(http.responseText);
 					}
 				}
 				http.send(params);

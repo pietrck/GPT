@@ -31,7 +31,7 @@ class Upload extends DB
 			$content[$key] = explode(";", $value);
 			if (array_search($content[$key][4].$content[$key][7], $apontamentos) === false) {
 				$temp = [
-					$content[$key][0],
+					trim($content[$key][0]),
 					$content[$key][4],
 					$content[$key][6],
 					$content[$key][7],
