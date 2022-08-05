@@ -85,6 +85,22 @@ class DB
 		return $query->execute();
 	}
 
+	public function alter($id, $cliente)
+	{
+		$result = $this->select(columns: "cliente", where: "where id = :id;", params: ["id" => $id]);
+
+		if (count($result) > 0) {
+			foreach ($result as $row) {
+				$this->history("tickets", "alterado o cliente de {$row['cliente']} para {$cliente} do apontamento {$id}");
+			}
+		}
+
+		$query = $this->conn->prepare("update tickets set cliente = :cliente where id = :id;");
+		$query->bindParam("id", $id);
+		$query->bindParam("cliente", $cliente);
+		return $query->execute();
+	}
+
 	public function history($table, $description)
 	{
 		$query = $this->conn->prepare("insert into history(`table`, `description`, `datetime`) values (:table, :description, CURRENT_TIMESTAMP)");
@@ -96,6 +112,7 @@ class DB
 	public function select_customer($array = [])
 	{
 		$options= "";
+		$clientes = [];
 
 		$result = $this->select(columns: "cliente", order: " group by cliente order by cliente asc;");
 
@@ -103,14 +120,37 @@ class DB
 			foreach ($result as $row) {
 				if (count($array) > 0) {
 					if(!array_key_exists($row['cliente'], $array)){
-						$options .= '<option value="'.$row['cliente'].'">'.$row['cliente'].'</option>';
+						$clientes[] = trim($row['cliente']);
 					}
 				}else{
-					$options .= '<option value="'.$row['cliente'].'">'.$row['cliente'].'</option>';
+					$clientes[] = trim($row['cliente']);
 				}
 
 			}
 		}
+
+		$result = $this->select(columns: "nome", from: "clientes");
+
+		if (count($result) > 0) {
+			foreach ($result as $row) {
+				if (count($array) > 0) {
+					if(!array_key_exists($row['nome'], $array)){
+						$clientes[] = trim($row['nome']);
+					}
+				}else{
+					$clientes[] = trim($row['nome']);
+				}
+
+			}
+		}
+
+		$clientes = array_unique($clientes);
+		sort($clientes);
+
+		foreach ($clientes as $key => $value) {
+			$options .= '<option value="'.$value.'">'.$value.'</option>';
+		}
+
 		return $options;
 	}
 }

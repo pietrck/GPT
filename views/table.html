@@ -164,7 +164,38 @@
 								</div>
 							<!-- /.card -->
 							</div>
-						</div>   
+						</div>
+					</div>
+					<div class="modal fade" id="modal-cliente" aria-hidden="true" style="display: none;">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h4 class="modal-title" id="cliente"></h4>
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+										<span aria-hidden="true">×</span>
+									</button>
+								</div>
+								<div class="modal-body">
+									<div class="row">
+										<div class="col-3">
+											<label for="inputPassword6" class="col-form-label">Novo cliente</label>
+										</div>
+										<div class="col">
+											<select id="select" name="name" class="form-control">
+												<option value="">Selecione um ...</option>
+												{{options_clientes}}
+											</select>
+										</div>
+									</div>
+								</div>
+								<div class="modal-footer justify-content-between">
+									<button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+									<button type="submit" class="btn btn-primary" data-dismiss="modal" onclick="change_costumer()">Alterar</button>
+								</div>
+							</div>
+						<!-- /.modal-content -->
+						</div>
+						<!-- /.modal-dialog -->
 					</div>
 				</section> 
 			</div>
@@ -178,11 +209,17 @@
 			</footer>
 		</div>
 		<!-- ./wrapper -->
+		{{scripts}}
 		<script type="text/javascript">
 			var bol = true;
 			var bol2 = true;
 			var bol3 = true;
 			var tbody = document.getElementById("table").children[1].children;
+			var id_apontamento = '';
+
+			$('#modal-cliente').on('hidden.bs.modal', function () {
+				document.getElementById('select').value = "";
+			});
 
 			function copytoclipboard(selector)
 			{
@@ -200,6 +237,25 @@
 						})
 					);
 				}
+			}
+
+			function modal(id, cliente)
+			{
+				id_apontamento = id;
+				var header = document.getElementById('cliente');
+
+				header.innerHTML = 'Alteração do cliente: <span style="color: red">'+cliente+'</span>';
+			}
+
+			function change_costumer()
+			{
+				var select = document.getElementById('select')
+				
+				var params_change = 'alter='+id_apontamento+'&costumer='+select.value;
+				post(params_change);
+
+				var x = document.getElementById(id_apontamento);
+				x.children[0].children[0].innerHTML = select.value;
 			}
 
 			function filter_ignored()
@@ -281,7 +337,8 @@
 					element.style.display = "none";
 				}
 				count_rows();
-				post('apontar',id);
+				var params_apontar = 'apontar=1&id='+id;
+				post(params_apontar);
 			}
 
 			function ignorar(id)
@@ -296,7 +353,9 @@
 					element.style.display = "none";
 				}
 				count_rows();
-				post('ignorar',id);
+
+				var params_ignorar = 'ignorar=1&id='+id;
+				post(params_ignorar);
 			}
 
 			function limpar(id, type = "")
@@ -325,7 +384,9 @@
 				}
 
 				count_rows();
-				post('limpar',id);
+
+				var params_limpar = 'limpar=1&id='+id;
+				post(params_limpar);
 			}
 
 			function count_rows()
@@ -340,11 +401,10 @@
 				contagem.innerHTML = count+" Apontamentos para lançar";
 			}
 
-			function post(type,id)
+			function post(params)
 			{
 				var http = new XMLHttpRequest();
 				var url = 'rest.php';
-				var params = type+'=1&id='+id;
 				http.open('POST', url, true);
 
 				//Send the proper header information along with the request
@@ -373,7 +433,6 @@
 
 			count_rows();
 		</script>
-		{{scripts}}
 		{{datepicker}}
 	</body>
 </html>

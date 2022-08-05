@@ -13,13 +13,29 @@ class Upload extends DB
 
 	public function upload_table($file)
 	{
-		$dados = $apontamentos = [];
+		$dados = $apontamentos = $users = $clientes = [];
 
 		$result = $this->select("ticket, n_acao");
 
 		if (count($result) > 0) {
 			foreach ($result as $row) {
 				array_push($apontamentos, $row['ticket'].$row['n_acao']);
+			}
+		}
+
+		$result_users = $this->select(from: "users", columns: "nome");
+
+		if (count($result_users) > 0) {
+			foreach ($result_users as $row) {
+				array_push($users, $row['nome']);
+			}
+		}
+
+		$result_clientes = $this->select(from: "clientes", where: "where classificacao = 'SCC'");
+
+		if (count($result_clientes) > 0) {
+			foreach ($result_clientes as $row) {
+				array_push($clientes, $row['nome']);
 			}
 		}
 
@@ -70,10 +86,10 @@ class Upload extends DB
 
 			if ($dado[9] == "00:01") {
 				$labels = "#A865C9";
-			}
-
-			if ($dado[6] == "FSW Totvs Curitiba") {
+			}elseif ($dado[6] == "FSW Totvs Curitiba") {
 				$labels = "#A865C9";
+			}elseif(array_search($dado[0], $clientes) !== false && array_search($dado[6], $users) !== false ){
+				$labels = "lightblue";
 			}
 
 			$query->bindParam(":labels", $labels);

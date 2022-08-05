@@ -36,7 +36,7 @@ if (isset($_POST['date'])) {
 			}		
 
 			$table .= "<tr id = ".$row['id']." style='background-color: ".$color."'>";
-			$table .= "<td title='".$row['cliente']."' style='max-width:50px; overflow: hidden;'>".$row['cliente']."</td>";
+			$table .= "<td title='".$row['cliente']."' style='max-width:50px; overflow: hidden;'><a data-toggle='modal' data-target='#modal-cliente' style='cursor: pointer;' onclick='modal(".$row['id'].",".'"'.$row['cliente'].'"'.")'>".$row['cliente']."</a></td>";
 			$table .= "<td style='max-width:50px; overflow: hidden;'>".$row['ticket']."</td>";
 			$table .= "<td title='".$row['assunto']."' style='max-width:50px; overflow: hidden;'>".$row['assunto']."</td>";
 			$table .= "<td style='max-width:30px; overflow: hidden;'>".$row['n_acao']."</td>";
@@ -88,9 +88,10 @@ if (isset($_POST['date'])) {
 		}
 	}
 
-	$options_clientes = $db->select_customer();
 	$active = "document.getElementById('apontamentos').classList.add('active');document.getElementById('apost').remove();";
 }
+
+$options_clientes = $db->select_customer();
 
 echo $views->page("table", [
 	"table" => $table,
