@@ -93,6 +93,22 @@ if (isset($_POST['date'])) {
 
 $options_clientes = $db->select_customer();
 
+$scripts_data_table = 
+'<script src="plugins/datatables/jquery.dataTables.min.js"></script>
+<script>
+$(document).ready(function () {
+    $("#table").DataTable({
+      "paging": false,
+      "lengthChange": false,
+      "searching": false,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false,
+      "responsive": true,
+    });
+});
+</script>';
+
 echo $views->page("table", [
 	"table" => $table,
 	"datepicker" => $views->render("datepicker"),
@@ -101,4 +117,4 @@ echo $views->page("table", [
 	"options_clientes" => $options_clientes,
 	"startdate" => '"01/'.date("m").'/'.date("Y").'"',
 	"enddate" => '"'.date("t").'/'.date("m").'/'.date("Y").'"',
-]);
+],$scripts_data_table);

@@ -149,10 +149,15 @@
 													<th>Assunto</th>
 													<th>Nº Ação</th>
 													<th>Ação</th>
+													<th style='display: none'>Categoria</th>
 													<th>Agente</th>
+													<th style='display: none'>Equipe</th>
 													<th>Data</th>
 													<th>Horas</th>
+													<th style='display: none'>Apontado</th>
 													<th>Opções</th>
+													<th style='display: none'>Classificação</th>
+													<th style='display: none'>Nome</th>
 												</tr>
 											</thead>
 											<tbody>
@@ -231,12 +236,13 @@
 					x += children[i].innerHTML.replace(/&nbsp;/gi," ") + "\t";
 					setTimeout(
 						async () => await navigator.clipboard.writeText(x).then(function () {
-							console.log("Copy to clipboard successfully.");
+							// toastr.info("Copiado para area de transferencia");
 						}, function () {
-							console.log("Copy to clipboard unsuccessfully.");
+							// console.log("Copy to clipboard unsuccessfully.");
 						})
 					);
 				}
+				toastr.info("Copiado para area de transferencia");
 			}
 
 			function modal(id, cliente)
@@ -252,7 +258,7 @@
 				var select = document.getElementById('select')
 				
 				var params_change = 'alter='+id_apontamento+'&costumer='+select.value;
-				post(params_change);
+				post(params_change, "Alterado o cliente para "+select.value);
 
 				var x = document.getElementById(id_apontamento);
 				x.children[0].children[0].innerHTML = select.value;
@@ -338,7 +344,7 @@
 				}
 				count_rows();
 				var params_apontar = 'apontar=1&id='+id;
-				post(params_apontar);
+				post(params_apontar, "Realizado o apontamento");
 			}
 
 			function ignorar(id)
@@ -355,7 +361,7 @@
 				count_rows();
 
 				var params_ignorar = 'ignorar=1&id='+id;
-				post(params_ignorar);
+				post(params_ignorar, "Apontamento ignorado");
 			}
 
 			function limpar(id, type = "")
@@ -386,7 +392,7 @@
 				count_rows();
 
 				var params_limpar = 'limpar=1&id='+id;
-				post(params_limpar);
+				post(params_limpar,"Limpado o apontamento");
 			}
 
 			function count_rows()
@@ -401,7 +407,7 @@
 				contagem.innerHTML = count+" Apontamentos para lançar";
 			}
 
-			function post(params)
+			function post(params, msg)
 			{
 				var http = new XMLHttpRequest();
 				var url = 'rest.php';
@@ -412,7 +418,7 @@
 
 				http.onreadystatechange = function() {//Call a function when the state changes.
 					if(http.readyState == 4 && http.status == 200) {
-						console.log(http.responseText);
+						toastr.info(msg)
 					}
 				}
 				http.send(params);

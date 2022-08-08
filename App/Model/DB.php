@@ -14,7 +14,7 @@ class DB
 	
 	public function open()
 	{
-		$conn = new PDO("mysql:dbname=gpt;host=localhost;","root","");
+		$conn = new PDO("mysql:dbname=gpt;host=172.16.0.13;","root","");
 		return $conn;
 	}
 

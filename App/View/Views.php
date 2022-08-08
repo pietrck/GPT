@@ -8,12 +8,12 @@ class Views
 		return $file;
 	}
 
-	public function page($name, $tags = [])
+	public function page($name, $tags = [], $scripts = "")
 	{
 		$page = $this->render($name);
 		$page = str_replace("{{menu}}", $this->render("menu"), $page);
 		$page = str_replace("{{header}}", $this->render("header"), $page);
-		$page = str_replace("{{scripts}}", $this->render("scripts"), $page);
+		$page = str_replace("{{scripts}}", $this->render("scripts").$scripts, $page);
 
 		foreach ($tags as $key => $value) {
 			$page = str_replace("{{".$key."}}", $value, $page);
