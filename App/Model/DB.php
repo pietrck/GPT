@@ -6,6 +6,8 @@
 class DB
 {
 	public $conn;
+	public $server = "localhost";
+	// public $server = "172.16.0.13";
 
 	public function __construct()
 	{
@@ -14,7 +16,7 @@ class DB
 	
 	public function open()
 	{
-		$conn = new PDO("mysql:dbname=gpt;host=172.16.0.13;","root","");
+		$conn = new PDO("mysql:dbname=gpt;host=".$this->server.";","root","");
 		return $conn;
 	}
 
