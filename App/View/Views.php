@@ -8,12 +8,18 @@ class Views
 		return $file;
 	}
 
-	public function page($name, $tags = [], $scripts = "")
+	public function page($name, $tags = [], $scripts = [])
 	{
 		$page = $this->render($name);
 		$page = str_replace("{{menu}}", $this->render("menu"), $page);
 		$page = str_replace("{{header}}", $this->render("header"), $page);
-		$page = str_replace("{{scripts}}", $this->render("scripts").$scripts, $page);
+		$script = $this->render("scripts");
+
+		foreach ($scripts as $key => $value) {
+			$script .= $this->render($value);
+		}
+
+		$page = str_replace("{{scripts}}", $script, $page);
 
 		foreach ($tags as $key => $value) {
 			$page = str_replace("{{".$key."}}", $value, $page);
@@ -23,3 +29,4 @@ class Views
 		return $page;
 	}
 }
+

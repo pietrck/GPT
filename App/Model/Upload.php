@@ -97,5 +97,7 @@ class Upload extends DB
 			if ($query->execute()) {
 			}
 		}
+
+		return count($dados);
 	}
 }

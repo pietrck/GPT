@@ -85,20 +85,20 @@
 											<span aria-hidden="true">×</span>
 										</button>
 									</div>
-									<form method="post" enctype="multipart/form-data">
+									<!-- <form method="post" enctype="multipart/form-data"> -->
 										<div class="modal-body">
 											<div class="input-group">
 												<div class="custom-file">
-													<input type="file" class="custom-file-input" name="file" accept=".csv">
+													<input type="file" class="custom-file-input" id="file" name="file" accept=".csv">
 													<label class="custom-file-label" for="exampleInputFile">Escolha o arquivo</label>
 												</div>
 											</div>
 										</div>
 										<div class="modal-footer justify-content-between">
 											<button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
-											<button type="submit" class="btn btn-primary">Upload</button>
+											<button type="submit" onclick="post_table()" data-dismiss="modal" class="btn btn-primary">Upload</button>
 										</div>
-									</form>
+									<!-- </form> -->
 								</div>
 							<!-- /.modal-content -->
 							</div>
@@ -216,10 +216,11 @@
 		<!-- ./wrapper -->
 		{{scripts}}
 		<script type="text/javascript">
-			var bol = true;
-			var bol2 = true;
-			var bol3 = true;
+			var bol = ($.cookie('ignored') === 'true');
+			var bol2 = ($.cookie('apontados') === 'true');
+			var bol3 = ($.cookie('scc') === 'true');
 			var tbody = document.getElementById("table").children[1].children;
+			var cookie = [];
 			var id_apontamento = '';
 
 			$('#modal-cliente').on('hidden.bs.modal', function () {
@@ -273,6 +274,8 @@
 						}
 					}
 
+					$.removeCookie('ignored');
+					$.cookie('ignored', false, { expires: 14, path: '/gpt' });
 					bol = false;
 				}else{
 					for (var i = 0; i < tbody.length; i++) {
@@ -281,6 +284,8 @@
 						}
 					}
 
+					$.removeCookie('ignored');
+					$.cookie('ignored', true, { expires: 14, path: '/gpt' });
 					bol = true;
 				}
 				count_rows();
@@ -295,6 +300,8 @@
 						}
 					}
 
+					$.removeCookie('apontados');
+					$.cookie('apontados', false, { expires: 14, path: '/gpt' });
 					bol2 = false;
 				}else{
 					for (var i = 0; i < tbody.length; i++) {
@@ -303,6 +310,8 @@
 						}
 					}
 
+					$.removeCookie('apontados');
+					$.cookie('apontados', true, { expires: 14, path: '/gpt' });
 					bol2 = true;
 				}
 				count_rows();
@@ -317,6 +326,8 @@
 						}
 					}
 
+					$.removeCookie('scc');
+					$.cookie('scc', false, { expires: 14, path: '/gpt' });
 					bol3 = false;
 				}else{
 					for (var i = 0; i < tbody.length; i++) {
@@ -325,6 +336,8 @@
 						}
 					}
 
+					$.removeCookie('scc');
+					$.cookie('scc', true, { expires: 14, path: '/gpt' });
 					bol3 = true;
 				}
 				count_rows();
@@ -424,6 +437,43 @@
 				http.send(params);
 			}
 
+			function post_table()
+			{
+				var file = document.getElementById("file");
+
+				/* Create a FormData instance */
+				var fd = new FormData();
+				/* Add the file */ 
+				fd.append("file", file.files[0]);
+
+				var http = new XMLHttpRequest();
+				var url = 'rest.php';
+				http.open('post', url, true);
+
+				http.setRequestHeader("X-File-Name", file.name);
+				http.setRequestHeader("X-File-Size", file.size);
+
+				toastr.info("Enviando");
+
+				http.onreadystatechange = function() {//Call a function when the state changes.
+					if(http.readyState == 4 && http.status == 200) {
+						let registros = http.responseText;
+						if(registros > 0){
+							toastr.success("Adicionado "+registros+" registros");
+							file.value = "";
+							bsCustomFileInput.destroy();
+							bsCustomFileInput.init();
+						}else{
+							toastr.warning("Sem novos registros");
+							file.value = "";
+							bsCustomFileInput.destroy();
+							bsCustomFileInput.init();
+						}
+					}
+				}
+				http.send(fd);
+			}
+
 			function create_button(classList, inner, attribute)
 			{
 				let btn = document.createElement("button");
@@ -436,6 +486,35 @@
 				btn.setAttribute("onclick",attribute);
 				return btn;
 			}
+
+			function check_cookies()
+			{
+				if (!bol) 
+				{
+					var cs1 = document.getElementById("customSwitch1");
+					cs1.checked = true;
+					bol = true;
+					filter_ignored();
+				}
+
+				if (!bol2) 
+				{
+					var cs2 = document.getElementById("customSwitch2");
+					cs2.checked = true;
+					bol2 = true;
+					filter_apontados();
+				}
+
+				if (!bol3) 
+				{
+					var cs3 = document.getElementById("customSwitch3");
+					cs3.checked = true;
+					bol3 = true;
+					filter_scc();
+				}
+			}
+			
+			check_cookies();
 
 			count_rows();
 		</script>

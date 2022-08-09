@@ -155,4 +155,12 @@ class DB
 
 		return $options;
 	}
+
+	public function insert_customer($post)
+	{
+		$query = $this->conn->prepare("insert into clientes(nome,classificacao) values (:nome,:classificacao)");
+		$query->bindParam("nome", $post['name']);
+		$query->bindParam("classificacao", $post['classificacao']);
+		return $query->execute();
+	}
 }
