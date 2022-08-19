@@ -10,7 +10,7 @@ $table = "";
 $toastr = "";
 $clientes = [];
 
-if (isset($_POST['name'])) {
+if (isset($_POST['name']) || isset($_POST['name_writing'])) {
 	if($db->insert_customer($_POST)){
 		$toastr = '<script>toastr.success("Cliente '.$_POST['name'].' cadastrado");</script>';
 	}

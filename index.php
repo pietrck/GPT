@@ -7,7 +7,7 @@ $views = new Views();
 $db = new DB();
 
 $ignorados = $apontados = $scc = 0;
-$data = [];
+$data = $agente = $cliente = [];
 
 setlocale(LC_ALL, 'pt_BR', 'pt_BR.utf-8', 'pt_BR.utf-8', 'portuguese');
 date_default_timezone_set('America/Sao_Paulo');
@@ -38,6 +38,18 @@ if (count($result) > 0) {
 				}else{
 					$data[$row['data']] = 1;
 				}
+
+				if (array_key_exists($row['agente'], $agente)) {
+					$agente[$row['agente']]++;
+				}else{
+					$agente[$row['agente']] = 1;
+				}
+
+				if (array_key_exists($row['cliente'], $cliente)) {
+					$cliente[$row['cliente']]++;
+				}else{
+					$cliente[$row['cliente']] = 1;
+				}
 				break;
 		}
 	}
@@ -52,16 +64,32 @@ $table .= "<tr><td>3</td><td>SCC</td><td>".$scc."</td><td>".number_format(($scc/
 $table .= "<tr><td>4</td><td>Falta apontar</td><td>".$falta_apontar."</td><td>".number_format(($falta_apontar/$total)*100,2)."%</td></tr>";
 $table .= "<tr><td>5</td><td>Total</td><td>".count($result)."</td><td>100%</td></tr>";
 
-$table2 = "";
-$x = 1;
+$table2 = $table3 = $table4 = "";
+$x = $z = $y = 1;
 
 foreach ($data as $key => $value) {
 	$table2 .= "<tr><td>".$x++."</td><td>".date("d/m/y",strtotime($key))."</td><td>".$value."</td><td>".number_format(($value/$falta_apontar)*100,2)."%</td></tr>";
 }
 
+foreach ($cliente as $key => $value) {
+	$table3 .= "<tr><td>".$y++."</td><td style='max-width: 200px; overflow: hidden'>".$key."</td><td>".$value."</td><td>".number_format(($value/$falta_apontar)*100,2)."%</td></tr>";
+}
+
+$table3 .= "<tr><td>".$y++."</td><td>Total</td><td>".array_sum($agente)."</td><td>100%</td></tr>";
+
+ksort($agente);
+
+foreach ($agente as $key => $value) {
+	$table4 .= "<tr><td>".$z++."</td><td>".$key."</td><td>".$value."</td><td>".number_format(($value/$falta_apontar)*100,2)."%</td></tr>";
+}
+
+$table4 .= "<tr><td>".$z++."</td><td>Total</td><td>".array_sum($agente)."</td><td>100%</td></tr>";
+
 echo $views->page("home", [
-	"active" => "document.getElementById('home').classList.add('active')",
+	"active" => "document.getElementById('home').classList.add('active');",
 	"mes" => ucfirst(strftime("%B")),
 	"table" => $table,
 	"table2" => $table2,
+	"table3" => $table3,
+	"table4" => $table4,
 ]);

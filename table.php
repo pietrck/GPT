@@ -31,7 +31,7 @@ if (isset($_POST['date'])) {
 
 			$table .= "<tr id = ".$row['id']." style='background-color: ".$color."'>";
 			$table .= "<td title='".$row['cliente']."' style='max-width:50px; overflow: hidden;'><a data-toggle='modal' data-target='#modal-cliente' style='cursor: pointer;' onclick='modal(".$row['id'].",".'"'.$row['cliente'].'"'.")'>".$row['cliente']."</a></td>";
-			$table .= "<td style='max-width:50px; overflow: hidden;'>".$row['ticket']."</td>";
+			$table .= "<td style='max-width:50px; overflow: hidden;'><a href='https://totvscuritiba.movidesk.com/Ticket/Edit/".$row['ticket']."' target='_blank'>".$row['ticket']."</a></td>";
 			$table .= "<td title='".$row['assunto']."' style='max-width:50px; overflow: hidden;'>".$row['assunto']."</td>";
 			$table .= "<td style='max-width:30px; overflow: hidden;'>".$row['n_acao']."</td>";
 			$table .= "<td title='".$row['acao']."' style='max-width: 200px; overflow: hidden;'>".nl2br($row['acao'])."</td>";

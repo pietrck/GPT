@@ -89,17 +89,32 @@ class DB
 
 	public function alter($id, $cliente)
 	{
-		$result = $this->select(columns: "cliente", where: "where id = :id;", params: ["id" => $id]);
+		$labels = "";
+		$result = $this->select(columns: "cliente, labels", where: "where id = :id;", params: ["id" => $id]);
 
 		if (count($result) > 0) {
 			foreach ($result as $row) {
 				$this->history("tickets", "alterado o cliente de {$row['cliente']} para {$cliente} do apontamento {$id}");
+				$labels = $row['labels'];
 			}
 		}
 
-		$query = $this->conn->prepare("update tickets set cliente = :cliente where id = :id;");
+		$clientes = $this->select(from: "clientes", columns: "classificacao", where: "where nome = :nome;", params: ["nome" => $cliente]);
+
+		if (count($clientes) > 0) {
+			foreach ($clientes as $row) {
+				if ($row['classificacao'] == "SCC" && $labels == "") {
+					$labels = "lightblue";
+				}elseif ($labels == "lightblue") {
+					$labels = "";
+				}
+			}
+		}
+
+		$query = $this->conn->prepare("update tickets set cliente = :cliente, labels = :labels where id = :id;");
 		$query->bindParam("id", $id);
 		$query->bindParam("cliente", $cliente);
+		$query->bindParam("labels", $labels);
 		return $query->execute();
 	}
 
@@ -158,9 +173,17 @@ class DB
 
 	public function insert_customer($post)
 	{
+		$name = $post['name'];
+		if ($post['name'] == "") {
+			$name = $post['name_writing'];
+		}
 		$query = $this->conn->prepare("insert into clientes(nome,classificacao) values (:nome,:classificacao)");
-		$query->bindParam("nome", $post['name']);
+		$query->bindParam("nome", $name);
 		$query->bindParam("classificacao", $post['classificacao']);
-		return $query->execute();
+		$query->execute();
+
+		$query_update = $this->conn->prepare("update tickets set labels = 'lightblue' where cliente = :cliente and labels = '' and horas <> '00:00:01' and agente in (select nome from users);");
+		$query_update->bindParam("cliente", $name);
+		return $query_update->execute();
 	}
 }
