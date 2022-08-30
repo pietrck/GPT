@@ -1,0 +1,4 @@
+RewriteEngine on
+RewriteBase /gpt/
+RewriteCond %{REQUEST_FILENAME} !-s 
+RewriteRule ^(.*)$ index.php?uri=$1 [L]

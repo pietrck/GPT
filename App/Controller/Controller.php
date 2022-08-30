@@ -19,7 +19,7 @@ class Controller
 		$this->views = new Views();
 		$this->db = new DB();
 
-		$ignorados = $apontados = $scc = 0;
+		$ignorados = $apontados = $scc = $falta_apontar = 0;
 		$data = $agente = $cliente = [];
 
 		setlocale(LC_ALL, 'pt_BR', 'pt_BR.utf-8', 'pt_BR.utf-8', 'portuguese');
@@ -63,13 +63,14 @@ class Controller
 						}else{
 							$cliente[$row['cliente']] = 1;
 						}
+						$falta_apontar++;
 						break;
 				}
 			}
 		}
 
 		$total = count($result);
-		$falta_apontar =  $total - $scc - $apontados - $ignorados;
+		// $falta_apontar =  $total - $scc - $apontados - $ignorados;
 
 		$table = "<tr><td>1</td><td>Apontados</td><td>".$apontados."</td><td>".number_format(($apontados/$total)*100,2)."%</td></tr>";
 		$table .= "<tr><td>2</td><td>Ignorados</td><td>".$ignorados."</td><td>".number_format(($ignorados/$total)*100,2)."%</td></tr>";
@@ -242,6 +243,25 @@ class Controller
 		],[
 			'toastr',
 		]);
+	}
+
+	public function rest($post = [], $files = [])
+	{
+		if (isset($post['apontar'])) {
+			$this->db->apontar($post['id']);
+		}elseif (isset($post['ignorar'])) {
+			$this->db->ignorar($post['id']);
+		}elseif (isset($post['limpar'])) {
+			$this->db->limpar($post['id']);
+		}elseif (isset($post['alter'])) {
+			$this->db->alter($post['alter'], $post['costumer']);
+		}elseif (isset($files['file'])) {
+			if (isset($files['file'])) {
+				require_once __DIR__."/App/Model/Upload.php";
+				$upload = new Upload();
+				echo $upload->upload_table($files['file']);
+			}
+		}
 	}
 
 }
