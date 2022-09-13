@@ -18,6 +18,10 @@ switch ($uri) {
 	case 'rest.php':
 		echo $controller->rest($_POST, $_FILES);
 		break;
+
+	case 'index.php':
+		echo $controller->home();
+		break;
 	
 	default:
 		echo $controller->home();

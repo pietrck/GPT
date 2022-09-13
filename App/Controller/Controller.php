@@ -70,14 +70,18 @@ class Controller
 		}
 
 		$total = count($result);
-		// $falta_apontar =  $total - $scc - $apontados - $ignorados;
 
-		$table = "<tr><td>1</td><td>Apontados</td><td>".$apontados."</td><td>".number_format(($apontados/$total)*100,2)."%</td></tr>";
-		$table .= "<tr><td>2</td><td>Ignorados</td><td>".$ignorados."</td><td>".number_format(($ignorados/$total)*100,2)."%</td></tr>";
-		$table .= "<tr><td>3</td><td>SCC</td><td>".$scc."</td><td>".number_format(($scc/$total)*100,2)."%</td></tr>";
-		$table .= "<tr><td>4</td><td>Falta apontar</td><td>".$falta_apontar."</td><td>".number_format(($falta_apontar/$total)*100,2)."%</td></tr>";
+		$falta_apontar_percent = ($falta_apontar == 0)? "#":number_format(($falta_apontar/$total)*100,2)."%";
+		$apontados_percent = ($apontados == 0)? "#":number_format(($apontados/$total)*100,2)."%";
+		$ignorados_percent = ($ignorados == 0)? "#":number_format(($ignorados/$total)*100,2)."%";
+		$scc_percent = ($scc == 0)? "#":number_format(($scc/$total)*100,2)."%";
+
+		$table = "<tr><td>1</td><td>Apontados</td><td>".$apontados."</td><td>".$apontados_percent."</td></tr>";
+		$table .= "<tr><td>2</td><td>Ignorados</td><td>".$ignorados."</td><td>".$ignorados_percent."</td></tr>";
+		$table .= "<tr><td>3</td><td>SCC</td><td>".$scc."</td><td>".$scc_percent."</td></tr>";
+		$table .= "<tr><td>4</td><td>Falta apontar</td><td>".$falta_apontar."</td><td>".$falta_apontar_percent."</td></tr>";
 		$table .= "<tr><td>5</td><td>Total</td><td>".count($result)."</td><td>100%</td></tr>";
-
+		
 		$table2 = $table3 = $table4 = "";
 		$x = $z = $y = 1;
 
@@ -138,7 +142,7 @@ class Controller
 					$table .= "<td style='max-width:50px; overflow: hidden;'><a href='https://totvscuritiba.movidesk.com/Ticket/Edit/".$row['ticket']."' target='_blank'>".$row['ticket']."</a></td>";
 					$table .= "<td title='".$row['assunto']."' style='max-width:50px; overflow: hidden;'>".$row['assunto']."</td>";
 					$table .= "<td style='max-width:30px; overflow: hidden;'>".$row['n_acao']."</td>";
-					$table .= "<td title='".$row['acao']."' style='max-width: 200px; overflow: hidden;'>".nl2br($row['acao'])."</td>";
+					$table .= "<td title='".str_replace(["'",'"'], "", $row['acao'])."' style='max-width: 200px; overflow: hidden;'>".nl2br($row['acao'])."</td>";
 					$table .= "<td style='display: none'>".$row['categoria']."</td>";
 					$table .= "<td style='max-width:200px; overflow: hidden;'>".$row['agente']."</td>";
 					$table .= "<td style='display: none'>".$row['equipe']."</td>";
@@ -257,11 +261,16 @@ class Controller
 			$this->db->alter($post['alter'], $post['costumer']);
 		}elseif (isset($files['file'])) {
 			if (isset($files['file'])) {
-				require_once __DIR__."/App/Model/Upload.php";
+				require_once __DIR__."/../Model/Upload.php";
 				$upload = new Upload();
 				echo $upload->upload_table($files['file']);
 			}
 		}
+	}
+
+	private function convert_percent($value='')
+	{
+		// code...
 	}
 
 }
