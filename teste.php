@@ -13,11 +13,17 @@ curl_setopt_array($curl, array(
 
 $tickets = json_decode(curl_exec($curl), true);
 
+$titles = [];
+
 foreach ($tickets as $ticket) {
+	/*
 	print_r(json_encode($ticket));exit;
 	foreach ($ticket['actions'] as $action) {
 		if (count($action['timeAppointments']) > 0) {
 			echo $action['timeAppointments'][0]['workTime'];exit;
 		}
-	}
+	}*/
+	$titles[] = $ticket['subject'];
 }
+
+print_r(json_encode($titles));
