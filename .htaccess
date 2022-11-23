@@ -1,4 +1,8 @@
-RewriteEngine on
-RewriteBase /gpt/
-RewriteCond %{REQUEST_FILENAME} !-s 
-RewriteRule ^(.*)$ index.php?uri=$1 [L]
+RewriteEngine On
+
+# Do not rewrite these directories
+RewriteRule ^(dist) - [L]
+RewriteRule ^(plugins) - [L]
+
+# Rewrite all other URL
+RewriteRule ^(.*)$ index.php?uri=$1 [NC,L,QSA]
