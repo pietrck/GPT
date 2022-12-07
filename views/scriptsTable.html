@@ -16,7 +16,12 @@
 		var children = $("#"+selector)[0].children;
 
 		for (var i = 1; i < children.length-4; i++) {
-			x += children[i].innerHTML.replace(/&nbsp;/gi," ") + "\t";
+			if (i == 1) {
+				x += children[i].children[0].innerHTML.replace(/&nbsp;/gi," ") + "\t";
+			}else{
+				x += children[i].innerHTML.replace(/&nbsp;/gi," ") + "\t";
+			}
+
 			setTimeout(
 				async () => await navigator.clipboard.writeText(x).then(function(){}, function(){})
 			);
