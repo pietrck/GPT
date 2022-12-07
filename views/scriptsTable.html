@@ -1,0 +1,262 @@
+<script type="text/javascript">
+	var bol = ($.cookie('ignored') === 'true');
+	var bol2 = ($.cookie('apontados') === 'true');
+	var bol3 = ($.cookie('scc') === 'true');
+	var tbody = $("#table")[0].children[1].children;
+	var id_apontamento = '';
+
+	$('#modal-cliente').on('hidden.bs.modal', function () {
+		$('#select').val("");
+	});
+
+	function copytoclipboard(selector)
+	{
+		var x = "";
+
+		var children = $("#"+selector)[0].children;
+
+		for (var i = 1; i < children.length-4; i++) {
+			x += children[i].innerHTML.replace(/&nbsp;/gi," ") + "\t";
+			setTimeout(
+				async () => await navigator.clipboard.writeText(x).then(function(){}, function(){})
+			);
+		}
+		toastr.info("Copiado para area de transferencia");
+	}
+
+	function modal(id, cliente)
+	{
+		id_apontamento = id;
+		var header = $("#cliente")[0];
+
+		header.innerHTML = 'Alteração do cliente: <span style="color: red">'+cliente+'</span>';
+	}
+
+	function change_costumer()
+	{
+		var select = $("#select")[0];
+
+		var params_change = {alter: id_apontamento, costumer: select.value};
+		post(params_change, "Alterado o cliente para "+select.value);
+
+		var x = $("#"+id_apontamento)[0];
+		x.children[0].children[0].innerHTML = select.value;
+	}
+
+	function filter_ignored()
+	{
+		$.removeCookie('ignored');
+		if (bol) {
+			for (var i = 0; i < tbody.length; i++) {
+				if(tbody[i].style.backgroundColor == 'rgb(168, 101, 201)'){
+					tbody[i].style.display = "none";
+				}
+			}
+			bol = false;
+		}else{
+			for (var i = 0; i < tbody.length; i++) {
+				if(tbody[i].style.backgroundColor == 'rgb(168, 101, 201)'){
+					tbody[i].style.display = "";
+				}
+			}
+			bol = true;
+		}
+
+		$.cookie('ignored', true, { expires: 14, path: '/gpt' });
+		count_rows();
+	}
+
+	function filter_apontados()
+	{
+		$.removeCookie('apontados');
+		if (bol2) {
+			for (var i = 0; i < tbody.length; i++) {
+				if(tbody[i].children[10].innerHTML == 'Apontado'){
+					tbody[i].style.display = "none";
+				}
+			}
+			bol2 = false;
+		}else{
+			for (var i = 0; i < tbody.length; i++) {
+				if(tbody[i].children[10].innerHTML == 'Apontado'){
+					tbody[i].style.display = "";
+				}
+			}
+			bol2 = true;
+		}
+		$.cookie('apontados', true, { expires: 14, path: '/gpt' });
+		count_rows();
+	}
+
+	function filter_scc()
+	{
+		$.removeCookie('scc');
+		if (bol3) {
+			for (var i = 0; i < tbody.length; i++) {
+				if(tbody[i].children[12].innerHTML == 'SCC' && tbody[i].children[13].innerHTML != ''){
+					tbody[i].style.display = "none";
+				}
+			}
+			bol3 = false;
+		}else{
+			for (var i = 0; i < tbody.length; i++) {
+				if(tbody[i].children[12].innerHTML != '' && tbody[i].children[13].innerHTML != ''){
+					tbody[i].style.display = "";
+				}
+			}
+			bol3 = true;
+		}
+		$.cookie('scc', false, { expires: 14, path: '/gpt' });
+		count_rows();
+	}
+
+	function apontar(id)
+	{
+		var element = $("#"+id)[0];
+		element.style.backgroundColor = "lightgreen";
+		element.children[10].innerHTML = "Apontado";
+		element.children[11].children[1].remove();
+		let btn = create_button(["btn","btn-sm","btn-warning"],"Limpar","limpar("+id+", 'apontado');");
+		element.children[11].insertBefore(btn, element.children[11].children[1]);
+		element.children[11].children[2].disabled = true;
+		if (!bol2) {
+			element.style.display = "none";
+		}
+		count_rows();
+		var params_apontar = {apontar: "1", id: id};
+		post(params_apontar, "Realizado o apontamento");
+	}
+
+	function ignorar(id)
+	{
+		var element = $("#"+id)[0];
+		element.style.backgroundColor = "#A865C9";
+		element.children[11].children[2].remove();
+		let btn = create_button(["btn","btn-sm","btn-warning"],"Limpar","limpar("+id+");");
+		element.children[11].appendChild(btn);
+		element.children[11].children[1].disabled = true;
+		if (!bol) {
+			element.style.display = "none";
+		}
+		count_rows();
+
+		var params_ignorar = {ignorar: "1", id: id};
+		post(params_ignorar, "Apontamento ignorado");
+	}
+
+	function limpar(id, type = "")
+	{
+		var element = $("#"+id)[0];
+		element.style.backgroundColor = "white";
+
+		if (type == "apontado") {
+			element.children[11].children[1].remove();
+			element.children[10].innerHTML = "";
+			let btn = create_button(["btn","btn-sm","btn-success"],"Apontar","apontar("+id+");");
+			element.children[11].insertBefore(btn, element.children[11].children[1]);
+			element.children[11].children[2].disabled = false;
+			if (!bol2) {
+				element.style.display = "none";
+			}
+		}else{
+			element.children[11].children[2].remove();
+			let btn = create_button(["btn","btn-sm","btn-danger"],"Ignorar","ignorar("+id+");");
+			element.children[11].appendChild(btn);
+			element.children[11].children[1].disabled = false;
+
+			if (!bol) {
+				element.style.display = "none";
+			}
+		}
+
+		count_rows();
+
+		var params_limpar = {limpar: "1", id: id};
+		post(params_limpar,"Limpado o apontamento");
+	}
+
+	function count_rows()
+	{
+		var count = 0;
+		for (var i = 0; i < tbody.length; i++) {
+			if(tbody[i].style.display != 'none'){
+				count++;
+			}
+		}
+		$("#contagem")[0].innerHTML = count+" Apontamentos para lançar";
+	}
+
+	function post(params, msg) {
+		$.post(
+			'index.php?uri=rest.php', 
+			params, 
+			function(){
+				toastr.info(msg);
+			}, 
+			'json'
+		);
+	}
+
+	function post_table()
+	{
+		var file = $("#file")[0];
+		var fd = new FormData();
+		fd.append("file", file.files[0]);
+
+		$.ajax({
+			type: 'POST',
+			url: 'index.php?uri=rest.php',
+			data: fd,
+			processData: false, 
+			contentType: false, 
+			success: function(returnval) {
+				returnval > 0 ?toastr.success("Adicionado "+returnval+" registros"):toastr.warning("Sem novos registros");
+
+				file.value = "";
+				bsCustomFileInput.destroy();
+				bsCustomFileInput.init();
+			}
+		});
+	}
+
+	function create_button(classList, inner, attribute)
+	{
+		let btn = document.createElement("button");
+
+		classList.forEach(function (item, index) {
+			btn.classList.add(item);
+		});
+
+		btn.innerHTML = inner;
+		btn.setAttribute("onclick",attribute);
+		return btn;
+	}
+
+	function check_cookies()
+	{
+		if (!bol) 
+		{
+			$("#customSwitch1")[0].checked = true;
+			bol = true;
+			filter_ignored();
+		}
+
+		if (!bol2) 
+		{
+			$("#customSwitch2")[0].checked = true;
+			bol2 = true;
+			filter_apontados();
+		}
+
+		if (!bol3) 
+		{
+			$("#customSwitch3")[0].checked = true;
+			bol3 = true;
+			filter_scc();
+		}
+	}
+	
+	check_cookies();
+
+	count_rows();
+</script>

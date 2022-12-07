@@ -182,8 +182,24 @@ class DB
 		$query->bindParam("classificacao", $post['classificacao']);
 		$query->execute();
 
-		$query_update = $this->conn->prepare("update tickets set labels = 'lightblue' where cliente = :cliente and labels = '' and horas <> '00:00:01' and agente in (select nome from users);");
-		$query_update->bindParam("cliente", $name);
+		if ($pos['classificacao'] == "SCC") {
+			$query_update = $this->conn->prepare("update tickets set labels = 'lightblue' where cliente = :cliente and labels = '' and horas <> '00:00:01' and agente in (select nome from users);");
+			$query_update->bindParam("cliente", $name);
+			return $query_update->execute();
+		}
+
+		return "";
+	}
+
+	public function insert_user($post)
+	{
+		$name = $post['name_writing'];
+		$query = $this->conn->prepare("insert into users(nome,data_criacao) values (:nome,CURRENT_TIMESTAMP)");
+		$query->bindParam("nome", $name);
+		$query->execute();
+
+		$query_update = $this->conn->prepare("update tickets set labels = 'lightblue' where agente = :agente and labels = '' and horas <> '00:00:01' and agente in (select nome from users);");
+		$query_update->bindParam("agente", $name);
 		return $query_update->execute();
 	}
 }

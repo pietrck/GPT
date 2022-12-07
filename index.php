@@ -22,6 +22,10 @@ switch ($uri) {
 	case 'index.php':
 		echo $controller->home();
 		break;
+
+	case 'users.php':
+		echo $controller->users($_POST);
+		break;
 	
 	default:
 		echo $controller->home();

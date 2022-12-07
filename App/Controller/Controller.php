@@ -197,7 +197,6 @@ class Controller
 
 		return $this->views->page("table", [
 			"table" => $table,
-			"datepicker" => $this->views->render("datepicker"),
 			"active" => $active,
 			"options" => $options,
 			"options_clientes" => $options_clientes,
@@ -208,7 +207,9 @@ class Controller
 			"toastr",
 			"bscustomfile",
 			"datatable",
-			"cookie"
+			"cookie",
+			"scriptsTable",
+			"datepicker",
 		]
 		);
 	}
@@ -268,9 +269,35 @@ class Controller
 		}
 	}
 
-	private function convert_percent($value='')
+	public function users($post = [])
 	{
-		// code...
+		$table = "";
+
+		if (isset($post['name_writing'])) {
+			if($this->db->insert_user($post)){
+				$toastr = '<script>toastr.success("Usuário '.$post['name_writing'].' cadastrado");</script>';
+			}
+		}
+
+		$result = $this->db->select(from: "users", order: "order by nome asc;");
+
+		if (count($result) > 0) {
+			foreach ($result as $row) {
+				$table .= "<tr>";
+				$table .= "<td>".$row['nome']."</td>";
+				$table .= "<td>".$row['data_criacao']."</td>";
+				$table .= "</tr>";
+			}
+		}
+
+		echo $this->views->page("users", [
+			"active" => "document.getElementById('user').classList.add('active')",
+			"table" => $table,
+			"toastr" => $toastr,
+			
+		],[
+			'toastr',
+		]);
 	}
 
 }
