@@ -1,8 +1,7 @@
 RewriteEngine On
 
 # Do not rewrite these directories
-RewriteRule ^(dist) - [L]
-RewriteRule ^(plugins) - [L]
+RewriteRule ^(vendor) - [L]
 
 # Rewrite all other URL
 RewriteRule ^(.*)$ index.php?uri=$1 [NC,L,QSA]

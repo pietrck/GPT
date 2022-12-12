@@ -272,6 +272,7 @@ class Controller
 	public function users($post = [])
 	{
 		$table = "";
+		$toastr = "";
 
 		if (isset($post['name_writing'])) {
 			if($this->db->insert_user($post)){
